@@ -15,7 +15,7 @@ function App() {
 
   const checkHealth = async () => {
     try {
-      const res = await fetch('http://localhost:3000/health-check')
+      const res = await fetch('http://localhost:3000/health/')
       const data = await res.json()
       setMessage(data.message)
     } catch (err) {
@@ -33,20 +33,36 @@ function App() {
           <h1>Core Functionalities</h1>
         </div>
         {message && (
-          <div style={{ padding: '0.8rem', background: 'rgba(255, 0, 0, 0.1)', border: '1px solid red', color: 'red', borderRadius: '8px', marginBottom: '1rem', marginTop: '1rem' }}>
-            {/* blinking dot with live */}
-            <span style={{ display: 'inline-block', width: '10px', height: '10px', borderRadius: '50%', backgroundColor: 'red', marginRight: '0.5rem', animation: 'blink 2s infinite' }}></span>
+          <div
+            style={{
+              padding: '0.8rem',
+              background: 'rgba(255, 0, 0, 0.1)',
+              border: '1px solid red',
+              color: 'red',
+              borderRadius: '8px',
+              marginBottom: '1rem',
+              marginTop: '1rem',
+              width: '80%',
+              minHeight: '60px',
+              boxSizing: 'border-box',
+              overflowWrap: 'break-word',
+            }}
+          >
+            <span
+              style={{
+                display: 'inline-block',
+                width: '10px',
+                height: '10px',
+                borderRadius: '50%',
+                backgroundColor: 'red',
+                marginRight: '0.5rem',
+                animation: 'blink 2s infinite',
+              }}
+            />
+
             {message}
           </div>
         )}
-        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
-          <button type="button" onClick={checkHealth} className="counter">
-            Test Backend Connection
-          </button>
-          <button type="button" onClick={() => sendMessage('Hello from React!')} className="counter">
-            Test WebSocket Send
-          </button>
-        </div>
       </section>
       <div className="ticks"></div>
 
