@@ -5,24 +5,13 @@ import { useWebSocket } from './hooks/useWebSocket'
 function App() {
   const [message, setMessage] = useState<string | null>(null)
 
-  const { lastMessage, sendMessage } = useWebSocket()
+  const { lastMessage } = useWebSocket()
 
   useEffect(() => {
     if (lastMessage) {
       setMessage(lastMessage)
     }
   }, [lastMessage])
-
-  const checkHealth = async () => {
-    try {
-      const res = await fetch('http://localhost:3000/health/')
-      const data = await res.json()
-      setMessage(data.message)
-    } catch (err) {
-      console.error(err)
-      setMessage('Error connecting to backend')
-    }
-  }
 
   return (
     <>
