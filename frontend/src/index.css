@@ -16,6 +16,10 @@
   --color-brand-ember: var(--brand-ember);
   --color-brand-void: var(--brand-void);
   --color-brand-core: var(--brand-core);
+
+  /* Typography */
+  --font-heading: "Jersey 20", sans-serif;
+  --font-body: "Space Mono", monospace;
 }
 
 @layer base {
@@ -64,6 +68,7 @@
   body {
     background-color: var(--background);
     color: var(--foreground);
+    font-family: var(--font-body);
     @apply transition-colors duration-300;
   }
 }

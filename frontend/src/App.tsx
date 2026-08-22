@@ -29,20 +29,28 @@ function App() {
         >
           {/* Sun Icon (Visible in Dark Mode) */}
           <svg className="hidden dark:block w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
           </svg>
           
           {/* Moon Icon (Visible in Light Mode) */}
           <svg className="block dark:hidden w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
           </svg>
         </button>
       </div>
 
       <section className="flex flex-col items-center w-full max-w-4xl text-center mb-10 mt-8">
-        <img src="/logo.png" alt="StokedFleet Logo" className="w-32 h-32 mb-6 drop-shadow-md animate-bounce" style={{ animationDuration: '3s' }} />
+        <img src="/logo.png" alt="StokedFleet Logo" className="w-40 h-40 mb-4 drop-shadow-md animate-bounce" style={{ animationDuration: '3s' }} />
         
-        <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-brand-flame via-brand-ember to-brand-void mb-8 tracking-tight">
-          Core Functionalities
+        <h1 className="text-7xl md:text-9xl font-heading tracking-wider mb-2 mt-4 leading-none drop-shadow-sm">
+          <span className="text-brand-flame">STOKED</span><span className="text-brand-core">FLEET</span>
         </h1>
+        <h2 className="text-2xl md:text-3xl font-heading text-brand-void mb-8 uppercase tracking-[0.2em] opacity-90">
+          Real-Time Fleet Telemetry
+        </h2>
+        <p className="text-lg text-muted-foreground mb-6">
+          Experience the power of real-time data streaming with our WebSocket-based solution. Stay updated with live data and insights.
+        </p>
         
         {message && (
           <div className="flex items-start w-full max-w-2xl p-4 my-2 bg-brand-flame/10 border border-brand-flame/30 text-brand-flame rounded-lg shadow-sm text-left">
