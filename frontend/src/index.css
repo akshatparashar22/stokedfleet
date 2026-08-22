@@ -12,7 +12,10 @@
   --color-border-hover: var(--border-hover);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
-
+  
+  /* Status Colors */
+  --color-success: #22c55e;
+  
   /* Brand Colors */
   --color-brand-flame: var(--brand-flame);
   --color-brand-ember: var(--brand-ember);

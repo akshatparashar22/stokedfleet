@@ -1,0 +1,78 @@
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { Sun, Moon } from 'lucide-react'
+
+export function Login() {
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
+  const navigate = useNavigate()
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (username === 'admin' && password === 'admin') {
+      navigate('/dashboard')
+    } else {
+      setError('Invalid credentials. Try admin/admin')
+    }
+  }
+
+  const toggleTheme = () => {
+    const isDark = document.documentElement.classList.toggle('dark')
+    localStorage.setItem('theme', isDark ? 'dark' : 'light')
+  }
+
+  return (
+    <div className="flex min-h-screen w-full items-center justify-center bg-background relative">
+      {/* Theme Toggle Button */}
+      <div className="absolute top-6 right-6 z-50">
+        <button
+          onClick={toggleTheme}
+          className="p-2 rounded-full bg-muted text-foreground hover:bg-border transition-colors shadow-sm focus:outline-none"
+          aria-label="Toggle Dark Mode"
+        >
+          <Sun className="hidden dark:block w-6 h-6" />
+          <Moon className="block dark:hidden w-6 h-6" />
+        </button>
+      </div>
+
+      <div className="flex flex-col items-center justify-center w-full max-w-md p-6">
+        <img src="/logo.png" alt="StokedFleet Logo" className="w-24 h-24 mb-6 drop-shadow-md" />
+        <h1 className="text-5xl font-heading text-brand-void mb-8 tracking-widest">LOGIN</h1>
+      
+      <form onSubmit={handleLogin} className="w-full bg-card p-8 rounded-2xl shadow-sm border border-border flex flex-col gap-5">
+        {error && <p className="text-brand-flame font-bold text-sm bg-brand-flame/10 p-3 rounded-lg border border-brand-flame/30">{error}</p>}
+        
+        <div className="flex flex-col gap-2">
+          <label className="text-sm text-muted-foreground font-bold">Username</label>
+          <input 
+            type="text"
+            className="p-3 rounded-lg bg-background border border-border focus:outline-none focus:border-brand-core focus:ring-1 focus:ring-brand-core transition-all text-foreground"
+            value={username}
+            onChange={e => setUsername(e.target.value)}
+            placeholder="admin"
+          />
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <label className="text-sm text-muted-foreground font-bold">Password</label>
+          <input 
+            type="password"
+            className="p-3 rounded-lg bg-background border border-border focus:outline-none focus:border-brand-core focus:ring-1 focus:ring-brand-core transition-all text-foreground"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            placeholder="admin"
+          />
+        </div>
+
+        <button 
+          type="submit" 
+          className="mt-4 p-3 rounded-lg bg-brand-void text-white font-bold hover:bg-brand-void/80 hover:shadow-lg transition-all"
+        >
+          ENTER TERMINAL
+        </button>
+      </form>
+      </div>
+    </div>
+  )
+}
