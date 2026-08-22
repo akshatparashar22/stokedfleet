@@ -1,0 +1,35 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Vehicle {
+  id        String      @id
+  status    String
+  health    String
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  telemetry Telemetry[]
+}
+
+model Telemetry {
+  id         String   @id @default(uuid())
+  vehicleId  String
+  vehicle    Vehicle  @relation(fields: [vehicleId], references: [id])
+  timestamp  DateTime
+  speed      Float
+  fuelLevel  Float
+  engineTemp Float
+  status     String
+  health     String
+  eventType  String
+  lat        Float
+  lng        Float
+
+  @@index([timestamp])
+  @@index([vehicleId, timestamp])
+}

@@ -6,39 +6,67 @@ This is the monorepo for the Fleet / Vehicle Telemetry Dashboard, built as part 
 
 - `frontend/`: React + TypeScript application powered by Vite.
 - `backend/`: Node.js + Express backend server.
+- `shared/`: Shared TypeScript types used by both frontend and backend.
+
+## Prerequisites
+
+- **Node.js** (v18+)
+- **PostgreSQL** (v15+) — installed locally with `psql` available on PATH
 
 ## Getting Started
 
-### Backend
+### 1. Database Setup
 
-1. Open a terminal and navigate to the backend directory:
+Run the setup script to create the PostgreSQL user and database:
 
-   ```bash
-   cd backend
-   ```
+**Windows (PowerShell):**
 
-2. Start the development server:
+```powershell
+cd backend
+.\scripts\setup-db.ps1
+```
 
-   ```bash
-   npm run dev
-   ```
+**Linux / macOS:**
 
-   The backend will run on `http://localhost:3000`
+```bash
+cd backend
+chmod +x scripts/setup-db.sh
+./scripts/setup-db.sh
+```
 
-### Frontend
+> The scripts accept optional parameters to override defaults. Run with `--help` or check the script header for details.
 
-1. Open a new terminal and navigate to the frontend directory:
+### 2. Configure Environment
 
-   ```bash
-   cd frontend
-   ```
+Create (or update) `backend/.env` with the following:
 
-2. Start the development server:
+```env
+PORT=3000
+CORS_ORIGIN=http://localhost:5173
+DATABASE_URL="postgresql://stokedfleet_user:stokedfleet_pass@localhost:5432/stokedfleet?schema=public"
+```
 
-   ```bash
-   npm run dev
-   ```
+> Adjust the `DATABASE_URL` if you used custom values during database setup.
 
-   The frontend will run on `http://localhost:5173`
+### 3. Backend
+
+```bash
+cd backend
+npm install
+npx prisma migrate dev    # create and apply migrations
+npm run dev
+```
+
+The backend will run on `http://localhost:3000`
+
+### 4. Frontend
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+The frontend will run on `http://localhost:5173`
 
 Once both are running, you can test the backend connection by clicking the "Test Backend Connection" button on the frontend's main page.
