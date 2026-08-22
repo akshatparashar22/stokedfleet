@@ -68,6 +68,6 @@ Write-Host "  + Privileges granted" -ForegroundColor Green
 Write-Host ""
 Write-Host "Database created! Next steps:" -ForegroundColor Cyan
 Write-Host "  1. Add DATABASE_URL to your backend/.env (see README)"
-Write-Host "  2. Run 'npx prisma db push' to sync the schema"
+Write-Host "  2. Run 'npx prisma migrate dev' to sync the schema"
 Write-Host "  3. Run 'npm run dev' to start the backend"
 Write-Host ""
