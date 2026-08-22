@@ -7,13 +7,62 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Role {
+  DRIVER
+  FLEET_MANAGER
+  BUSINESS_OWNER
+}
+
+enum Theme {
+  LIGHT
+  DARK
+}
+
+model User {
+  id        String   @id @default(uuid())
+  role      Role     @default(DRIVER)
+  username  String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Hierarchical relationship: e.g., Driver -> Fleet Manager -> Business Owner
+  managerId    String?
+  manager      User?   @relation("UserHierarchy", fields: [managerId], references: [id])
+  subordinates User[]  @relation("UserHierarchy")
+
+  // Assigned vehicles (Many-to-Many mapping)
+  vehicles Vehicle[] @relation("UserVehicles")
+
+  // User preferences and settings
+  settings UserSettings?
+}
+
+model UserSettings {
+  id     String @id @default(uuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  theme Theme @default(LIGHT)
+
+  // Dashboard & Tracking preferences
+  liveData        Boolean @default(true)
+  pollingInterval Int     @default(5000) // Polling interval in milliseconds
+  autoRefresh     Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 model Vehicle {
-  id        String      @id
+  id        String   @id
   status    String
   health    String
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   telemetry Telemetry[]
+  users     User[]      @relation("UserVehicles")
 }
 
 model Telemetry {
