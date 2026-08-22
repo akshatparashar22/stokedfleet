@@ -6,7 +6,7 @@ import type { TelemetryTick } from '../types/telemetry.js';
 export function initWebSocket(server: Server): WebSocketServer {
   const wss = new WebSocketServer({ server });
   const publisher = new LiveFeedPublisher();
-  publisher.init();
+  publisher.init().catch(err => console.error('[Publisher Init Error]', err));
 
   wss.on('connection', (ws: WebSocket) => {
     console.log(`[WS] Client connected. Total: ${wss.clients.size}`);

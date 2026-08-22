@@ -5,6 +5,9 @@ import type {
   TelemetryEventType,
 } from '../types/telemetry.js';
 import { env } from '../config/env.js';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 interface VehicleState {
   vehicleId: string;
@@ -51,8 +54,17 @@ export class LiveFeedPublisher {
   }
 
   // simulate live feed data generation
-  init() {
+  async init() {
     if (this.intervalId) return; // prevent double-init
+
+    // Upsert vehicles before starting the interval
+    for (const v of this.vehicles) {
+      await prisma.vehicle.upsert({
+        where: { id: v.vehicleId },
+        update: { status: v.status, health: v.prevHealth },
+        create: { id: v.vehicleId, status: v.status, health: v.prevHealth },
+      });
+    }
 
     this.intervalId = setInterval(() => {
       // emit a tick for a random number of vehicles each interval
@@ -77,7 +89,7 @@ export class LiveFeedPublisher {
         const eventType = deriveEventType(v.prevHealth, health);
         v.prevHealth = health;
 
-        this.publish({
+        const payload: TelemetryTick = {
           vehicleId: v.vehicleId,
           timestamp: new Date().toISOString(),
           speed: round2(v.speed),
@@ -88,7 +100,25 @@ export class LiveFeedPublisher {
           eventType,
           lat: v.lat,
           lng: v.lng,
-        });
+        };
+
+        this.publish(payload);
+
+        // Asynchronously insert into database
+        prisma.telemetry.create({
+          data: {
+            vehicleId: payload.vehicleId,
+            timestamp: new Date(payload.timestamp),
+            speed: payload.speed,
+            fuelLevel: payload.fuelLevel,
+            engineTemp: payload.engineTemp,
+            status: payload.status,
+            health: payload.health,
+            eventType: payload.eventType,
+            lat: payload.lat,
+            lng: payload.lng,
+          }
+        }).catch((err: any) => console.error('[DB Error] Failed to insert telemetry:', err));
       }
     }, env.LIVE_FEED_INTERVAL_MS);
   }
