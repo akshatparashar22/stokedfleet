@@ -4,12 +4,11 @@ class WebSocketService {
     private static instance: WebSocketService;
 
     private socket: WebSocket | null = null;
+    private intentionalDisconnect: boolean = false;
 
     private listeners: Set<MessageListener> = new Set();
 
-    private constructor() {
-        this.connect();
-    }
+    private constructor() {}
 
     public static getInstance(): WebSocketService {
         if (!WebSocketService.instance) {
@@ -19,7 +18,10 @@ class WebSocketService {
         return WebSocketService.instance;
     }
 
-    private connect(): void {
+    public connect(): void {
+        if (this.socket) return;
+        this.intentionalDisconnect = false;
+        
         this.socket = new WebSocket("ws://localhost:3000");
 
         this.socket.onopen = () => {
@@ -30,14 +32,21 @@ class WebSocketService {
             this.listeners.forEach((listener) => listener(event.data));
         };
 
-        this.socket.onclose = () => {
-            console.log("Disconnected");
+        this.socket.onclose = (event: CloseEvent) => {
+            console.log(`Disconnected. Code: ${event.code}`);
 
             this.socket = null;
 
-            setTimeout(() => {
-                this.connect();
-            }, 3000);
+            // 1008 is Policy Violation (Unauthorized). Do not retry if rejected by server.
+            if (event.code === 1008) {
+                this.intentionalDisconnect = true;
+            }
+
+            if (!this.intentionalDisconnect) {
+                setTimeout(() => {
+                    this.connect();
+                }, 3000);
+            }
         };
 
         this.socket.onerror = (error) => {
@@ -61,7 +70,9 @@ class WebSocketService {
     }
 
     public disconnect(): void {
+        this.intentionalDisconnect = true;
         this.socket?.close();
+        this.socket = null;
     }
 }
 

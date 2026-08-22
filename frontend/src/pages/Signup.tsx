@@ -3,24 +3,25 @@ import { useNavigate, Link } from 'react-router-dom'
 import { Sun, Moon } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 
-export function Login() {
+export function Signup() {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
+  const [role, setRole] = useState('DRIVER')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
   const { login } = useAuth()
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
     setLoading(true)
     
     try {
-      const response = await fetch('/api/v1/auth/login', {
+      const response = await fetch('/api/v1/auth/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
+        body: JSON.stringify({ username, password, role })
       })
       
       if (response.ok) {
@@ -29,7 +30,7 @@ export function Login() {
         navigate('/dashboard')
       } else {
         const data = await response.json()
-        setError(data.error || 'Invalid credentials')
+        setError(data.error || 'Signup failed')
       }
     } catch (err) {
       setError('Network error. Please try again.')
@@ -58,9 +59,9 @@ export function Login() {
 
       <div className="flex flex-col items-center justify-center w-full max-w-md p-6">
         <img src="/logo.png" alt="StokedFleet Logo" className="w-24 h-24 mb-6 drop-shadow-md" />
-        <h1 className="text-5xl font-heading text-brand-void mb-8 tracking-widest">LOGIN</h1>
+        <h1 className="text-5xl font-heading text-brand-void mb-8 tracking-widest">REGISTER</h1>
       
-      <form onSubmit={handleLogin} className="w-full bg-card p-8 rounded-2xl shadow-sm border border-border flex flex-col gap-5">
+      <form onSubmit={handleSignup} className="w-full bg-card p-8 rounded-2xl shadow-sm border border-border flex flex-col gap-5">
         {error && <p className="text-brand-flame font-bold text-sm bg-brand-flame/10 p-3 rounded-lg border border-brand-flame/30">{error}</p>}
         
         <div className="flex flex-col gap-2">
@@ -84,7 +85,21 @@ export function Login() {
             onChange={e => setPassword(e.target.value)}
             placeholder="Password"
             required
+            minLength={6}
           />
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <label className="text-sm text-muted-foreground font-bold">Role</label>
+          <select 
+            className="p-3 rounded-lg bg-background border border-border focus:outline-none focus:border-brand-core focus:ring-1 focus:ring-brand-core transition-all text-foreground"
+            value={role}
+            onChange={e => setRole(e.target.value)}
+          >
+            <option value="DRIVER">Driver</option>
+            <option value="FLEET_MANAGER">Fleet Manager</option>
+            <option value="BUSINESS_OWNER">Business Owner</option>
+          </select>
         </div>
 
         <button 
@@ -92,11 +107,11 @@ export function Login() {
           disabled={loading}
           className="mt-4 p-3 rounded-lg bg-brand-void text-white font-bold hover:bg-brand-void/80 hover:shadow-lg transition-all disabled:opacity-50"
         >
-          {loading ? 'AUTHENTICATING...' : 'LOGIN'}
+          {loading ? 'CREATING...' : 'CREATE ACCOUNT'}
         </button>
         
         <p className="text-center text-sm text-muted-foreground mt-2">
-          Don't have an account? <Link to="/signup" className="text-brand-core hover:underline">Sign up</Link>
+          Already have an account? <Link to="/login" className="text-brand-core hover:underline">Log in</Link>
         </p>
       </form>
       </div>

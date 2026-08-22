@@ -2,14 +2,43 @@ import type { Server } from 'http';
 import WebSocket, { WebSocketServer } from 'ws';
 import { LiveFeedPublisher } from '../utils/livefeedgenerator.js';
 import type { TelemetryTick } from '../types/telemetry.js';
+import jwt from 'jsonwebtoken';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 export function initWebSocket(server: Server): WebSocketServer {
   const wss = new WebSocketServer({ server });
   const publisher = new LiveFeedPublisher();
   publisher.init().catch(err => console.error('[Publisher Init Error]', err));
+  const JWT_SECRET = process.env.JWT_SECRET || 'super_secret_key_change_in_production';
 
-  wss.on('connection', (ws: WebSocket) => {
-    console.log(`[WS] Client connected. Total: ${wss.clients.size}`);
+  wss.on('connection', async (ws: WebSocket, req) => {
+    // Basic cookie parsing for the 'token'
+    const cookieHeader = req.headers.cookie || '';
+    const match = cookieHeader.match(/token=([^;]+)/);
+    const token = match ? match[1] : null;
+
+    if (!token) {
+       console.log('[WS] Rejected: No token provided');
+       ws.close(1008, 'Unauthorized');
+       return;
+    }
+
+    try {
+      const decoded = jwt.verify(token, JWT_SECRET) as any;
+      const user = await prisma.user.findUnique({ where: { id: decoded.id } });
+      
+      if (!user) {
+        throw new Error('User no longer exists in database');
+      }
+
+      console.log(`[WS] Client connected (User: ${user.username}). Total: ${wss.clients.size}`);
+    } catch (err) {
+      console.log('[WS] Rejected: Invalid token or user deleted');
+      ws.close(1008, 'Unauthorized');
+      return;
+    }
 
     // subscribe this client to the live feed
     const onTick = (data: TelemetryTick) => {
