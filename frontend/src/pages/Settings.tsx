@@ -13,6 +13,11 @@ export function Settings() {
   const [theme, setTheme] = useState(user?.settings?.theme || 'SYSTEM');
   const [showMap, setShowMap] = useState(user?.settings?.widgets?.dashboard?.showMap ?? true);
   
+  // Analytics Widgets
+  const [showOverall, setShowOverall] = useState(user?.settings?.widgets?.analytics?.showOverall ?? true);
+  const [showTable, setShowTable] = useState(user?.settings?.widgets?.analytics?.showTable ?? true);
+  const [showTrends, setShowTrends] = useState(user?.settings?.widgets?.analytics?.showTrends ?? true);
+  
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ text: string, type: 'success' | 'error' } | null>(null);
 
@@ -66,7 +71,10 @@ export function Settings() {
         autoRefreshAlerts,
         liveData,
         theme,
-        widgets: { dashboard: { showMap } }
+        widgets: { 
+          dashboard: { showMap },
+          analytics: { showOverall, showTable, showTrends }
+        }
       });
 
       // Apply the theme immediately
@@ -222,7 +230,71 @@ export function Settings() {
               </label>
             </div>
           </div>
+          <div className="space-y-4">
+            <h3 className="text-lg font-bold text-foreground border-b border-border pb-2 flex items-center gap-2">
+              <BarChart2 className="w-5 h-5 text-brand-core" />
+              Analytics Widgets
+            </h3>
+            
+            <div className="space-y-4">
+              <label className="flex items-center gap-3 cursor-pointer">
+                <div className="relative">
+                  <input 
+                    type="checkbox" 
+                    className="sr-only" 
+                    checked={showOverall}
+                    onChange={(e) => setShowOverall(e.target.checked)}
+                  />
+                  <div className={`block w-10 h-6 rounded-full transition-colors ${showOverall ? 'bg-brand-core' : 'bg-muted'}`}></div>
+                  <div className={`dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform ${showOverall ? 'transform translate-x-4' : ''}`}></div>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-sm font-semibold text-foreground flex items-center gap-1">
+                    Show Overall Data
+                  </span>
+                  <span className="text-xs text-muted-foreground">Display high-level fleet aggregates.</span>
+                </div>
+              </label>
 
+              <label className="flex items-center gap-3 cursor-pointer">
+                <div className="relative">
+                  <input 
+                    type="checkbox" 
+                    className="sr-only" 
+                    checked={showTable}
+                    onChange={(e) => setShowTable(e.target.checked)}
+                  />
+                  <div className={`block w-10 h-6 rounded-full transition-colors ${showTable ? 'bg-brand-core' : 'bg-muted'}`}></div>
+                  <div className={`dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform ${showTable ? 'transform translate-x-4' : ''}`}></div>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-sm font-semibold text-foreground flex items-center gap-1">
+                    Show Averages Table
+                  </span>
+                  <span className="text-xs text-muted-foreground">Display a tabular breakdown per vehicle.</span>
+                </div>
+              </label>
+
+              <label className="flex items-center gap-3 cursor-pointer">
+                <div className="relative">
+                  <input 
+                    type="checkbox" 
+                    className="sr-only" 
+                    checked={showTrends}
+                    onChange={(e) => setShowTrends(e.target.checked)}
+                  />
+                  <div className={`block w-10 h-6 rounded-full transition-colors ${showTrends ? 'bg-brand-core' : 'bg-muted'}`}></div>
+                  <div className={`dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform ${showTrends ? 'transform translate-x-4' : ''}`}></div>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-sm font-semibold text-foreground flex items-center gap-1">
+                    Show Trends Chart
+                  </span>
+                  <span className="text-xs text-muted-foreground">Display interactive historical trend charts.</span>
+                </div>
+              </label>
+            </div>
+          </div>
           <div className="space-y-4">
             <h3 className="text-lg font-bold text-foreground border-b border-border pb-2 flex items-center gap-2">
               <SettingsIcon className="w-5 h-5 text-brand-core" />
