@@ -67,6 +67,7 @@ export class LiveFeedPublisher {
     }
 
     this.intervalId = setInterval(() => {
+      if (this.subscribers.size === 0) return;
       // emit a tick for a random number of vehicles each interval
       const count = 1 + Math.floor(Math.random() * this.vehicles.length);
       const shuffled = [...this.vehicles].sort(() => Math.random() - 0.5);

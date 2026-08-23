@@ -1,16 +1,18 @@
 import { NavLink, useNavigate } from 'react-router-dom'
 import { Activity, BarChart2, Bell, Settings as SettingsIcon, LogOut, Sun, Moon, Info } from 'lucide-react'
+import { useAuth } from '../context/AuthContext'
 
 export function Sidebar() {
   const navigate = useNavigate()
+  const { logout } = useAuth()
 
   const toggleTheme = () => {
     const isDark = document.documentElement.classList.toggle('dark')
     localStorage.setItem('theme', isDark ? 'dark' : 'light')
   }
 
-  const handleLogout = () => {
-    // In a real app, clear session/tokens here
+  const handleLogout = async () => {
+    await logout()
     navigate('/')
   }
 
