@@ -6,6 +6,7 @@ import type {
 } from '../types/telemetry.js';
 import { env } from '../config/env.js';
 import { PrismaClient } from '@prisma/client';
+import { NEW_DELHI_ROUTES } from './routes.js';
 
 const prisma = new PrismaClient();
 
@@ -18,6 +19,8 @@ interface VehicleState {
   lng: number;
   status: VehicleStatus;
   prevHealth: VehicleHealth;
+  routeId: number;
+  routeIndex: number;
 }
 
 const STATUSES: VehicleStatus[] = ['INTRANSIT', 'OUTOFSERVICE', 'IDLE', 'STANDBY'];
@@ -29,16 +32,23 @@ export class LiveFeedPublisher {
   private intervalId: ReturnType<typeof setInterval> | null = null;
 
   constructor(fleetSize = 5) {
-    this.vehicles = Array.from({ length: fleetSize }, (_, i) => ({
-      vehicleId: `SF-${String(i + 1).padStart(3, '0')}`,
-      speed: 40 + Math.random() * 80,
-      fuelLevel: 60 + Math.random() * 30,
-      engineTemp: 75 + Math.random() * 10,
-      lat: 28.6139 + (Math.random() - 0.5) * 0.05,
-      lng: 77.209 + (Math.random() - 0.5) * 0.05,
-      status: STATUSES[Math.floor(Math.random() * STATUSES.length)]!,
-      prevHealth: 'OK' as VehicleHealth,
-    }));
+    this.vehicles = Array.from({ length: fleetSize }, (_, i) => {
+      const routeId = i % NEW_DELHI_ROUTES.length;
+      const startPoint = NEW_DELHI_ROUTES[routeId]![0] as [number, number];
+      
+      return {
+        vehicleId: `SF-${String(i + 1).padStart(3, '0')}`,
+        speed: 40 + Math.random() * 80,
+        fuelLevel: 60 + Math.random() * 30,
+        engineTemp: 75 + Math.random() * 10,
+        lat: startPoint[0],
+        lng: startPoint[1],
+        status: STATUSES[Math.floor(Math.random() * STATUSES.length)]!,
+        prevHealth: 'OK' as VehicleHealth,
+        routeId,
+        routeIndex: 1, // Aiming for the next point initially
+      };
+    });
   }
 
   subscribe(callback: (data: TelemetryTick[]) => void) {
@@ -112,11 +122,33 @@ export class LiveFeedPublisher {
           v.fuelLevel = clamp(v.fuelLevel - Math.random() * 0.5, 0, 100);
           
           // Slight upward bias to engine temperature to simulate eventual overheating
-          // Max delta is +2.4, min is -1.6, ensuring it must pass through WARN (90-100) before CRITICAL (>100)
           v.engineTemp = clamp(v.engineTemp + (Math.random() - 0.4) * 4, 80, 115);
           
-          v.lat += (Math.random() - 0.5) * 0.002;
-          v.lng += (Math.random() - 0.5) * 0.002;
+          // Move along route
+          const route = NEW_DELHI_ROUTES[v.routeId]!;
+          const target = route[v.routeIndex] as [number, number];
+          const dx = target[0] - v.lat;
+          const dy = target[1] - v.lng;
+          const dist = Math.sqrt(dx*dx + dy*dy);
+          
+          // 120km/h ~ max speed. 0.001 deg is roughly 100m. 
+          const step = (v.speed / 120) * 0.001;
+
+          if (dist < step) {
+            // Reached waypoint, move to next
+            v.lat = target[0];
+            v.lng = target[1];
+            v.routeIndex = (v.routeIndex + 1) % route.length;
+            
+            // Optionally, if we loop back to 0, it means we finished the route
+            if (v.routeIndex === 0) {
+              v.status = 'STANDBY';
+            }
+          } else {
+            // Interpolate
+            v.lat += (dx / dist) * step;
+            v.lng += (dy / dist) * step;
+          }
         } else {
           v.speed = 0;
           // Cool down when not moving

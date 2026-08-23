@@ -2,6 +2,8 @@ import { useEffect, useState, useMemo } from 'react'
 import { useWebSocket } from '../hooks/useWebSocket'
 import { Activity, Thermometer, Zap, AlertTriangle, CheckCircle, Navigation, Power, Truck, ChevronRight } from 'lucide-react'
 import { useAuthStore } from '../store/authStore'
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
+import L from 'leaflet'
 
 interface TelemetryTick {
   vehicleId: string
@@ -15,6 +17,33 @@ interface TelemetryTick {
   lat: number
   lng: number
 }
+
+const createCustomIcon = (status: string, isPinned: boolean) => {
+  const color = status === 'INTRANSIT' ? '#e61e25' // Brand Core
+    : status === 'IDLE' ? '#f59e0b' // Brand Ember
+    : status === 'OUTOFSERVICE' ? '#ef4444' // Brand Flame
+    : '#6b7280'; // Standby / muted
+
+  return L.divIcon({
+    className: 'custom-vehicle-marker bg-transparent border-0',
+    html: `
+      <div style="
+        background-color: ${color}; 
+        width: ${isPinned ? '24px' : '16px'}; 
+        height: ${isPinned ? '24px' : '16px'}; 
+        border-radius: 50%; 
+        border: ${isPinned ? '4px' : '2px'} solid white; 
+        box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        transition: all 0.3s ease;
+        ${isPinned ? 'animation: pulse 2s infinite;' : ''}
+      "></div>
+    `,
+    iconSize: isPinned ? [24, 24] : [16, 16],
+    iconAnchor: isPinned ? [12, 12] : [8, 8]
+  });
+};
+
+const MAP_CENTER: [number, number] = [28.6139, 77.2090]; // New Delhi
 
 export function Dashboard() {
   const { user, updateSettings } = useAuthStore()
@@ -77,7 +106,43 @@ export function Dashboard() {
           <p className="text-muted-foreground font-bold tracking-widest">AWAITING SIGNAL...</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+        <div className="flex flex-col gap-8">
+          
+          {/* Full-width Map Widget */}
+          <div className="flex flex-col gap-2">
+            <div className="w-full h-[40vh] bg-card rounded-2xl border border-border shadow-sm overflow-hidden relative z-0">
+              <MapContainer center={MAP_CENTER} zoom={12} style={{ height: '100%', width: '100%' }}>
+                <TileLayer 
+                  url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+                />
+                {vehicles.map(v => (
+                  <Marker 
+                    key={v.vehicleId} 
+                    position={[v.lat, v.lng]} 
+                    icon={createCustomIcon(v.status, v.vehicleId === pinnedVehicleId)}
+                    eventHandlers={{ click: () => setPinnedVehicleId(v.vehicleId) }}
+                  >
+                    <Popup className="font-body text-sm font-bold">
+                      <div className="flex flex-col gap-1">
+                        <span className="text-brand-void text-lg">{v.vehicleId}</span>
+                        <span className="text-muted-foreground">Status: <span className="text-brand-core">{v.status}</span></span>
+                        <span className="text-muted-foreground">Speed: {v.speed.toFixed(0)} km/h</span>
+                      </div>
+                    </Popup>
+                  </Marker>
+                ))}
+              </MapContainer>
+            </div>
+            <p className="text-xs text-muted-foreground px-2">
+              <a href="https://leafletjs.com/" target="_blank" rel="noopener noreferrer" className="hover:text-foreground underline transition-colors">Leaflet</a>, the open-source map library used above, asks for contributions for the welfare of the people of Ukraine hurt during the war. <a href="https://u24.gov.ua/" target="_blank" rel="noopener noreferrer" className="hover:text-foreground underline transition-colors">Please consider supporting their cause here.</a>
+              <span className="block mt-1.5 italic opacity-75 text-[11px]">
+                — Regards, dev with no affiliation to any organization or agenda.
+              </span>
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
           
           {/* Left Panel: Fleet List */}
           <div className="lg:col-span-1 bg-card rounded-2xl border border-border shadow-sm overflow-hidden flex flex-col max-h-[75vh]">
@@ -210,6 +275,7 @@ export function Dashboard() {
               </div>
             </div>
           )}
+          </div>
         </div>
       )}
     </div>
