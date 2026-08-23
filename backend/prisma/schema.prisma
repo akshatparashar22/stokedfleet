@@ -16,6 +16,7 @@ enum Role {
 enum Theme {
   LIGHT
   DARK
+  SYSTEM
 }
 
 model User {
@@ -43,12 +44,13 @@ model UserSettings {
   userId String @unique
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  theme Theme @default(LIGHT)
+  theme Theme @default(SYSTEM)
 
   // Dashboard & Tracking preferences
-  liveData        Boolean @default(true)
-  pollingInterval Int     @default(5000) // Polling interval in milliseconds
-  autoRefresh     Boolean @default(true)
+  liveData             Boolean @default(true)
+  pollingInterval      Int     @default(5000) // Polling interval in milliseconds
+  autoRefreshAnalytics Boolean @default(true)
+  autoRefreshAlerts    Boolean @default(true)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

@@ -36,22 +36,23 @@ router.post('/signup', async (req: Request, res: Response) => {
       data: {
         username,
         password: hashedPassword,
-        role: validRole,
         settings: {
           create: {
-            theme: 'LIGHT',
+            theme: 'SYSTEM',
             liveData: true,
             pollingInterval: 5000,
-            autoRefresh: true
+            autoRefreshAnalytics: true,
+            autoRefreshAlerts: true
           }
         }
       },
+      include: { settings: true }
     });
 
     const token = generateToken(user);
     setTokenCookie(res, token);
 
-    res.status(201).json({ id: user.id, username: user.username, role: user.role });
+    res.status(201).json({ id: user.id, username: user.username, role: user.role, settings: user.settings });
   } catch (error) {
     console.error('Signup error:', error);
     res.status(500).json({ error: 'Internal server error' });
@@ -67,7 +68,10 @@ router.post('/login', async (req: Request, res: Response) => {
       return;
     }
 
-    const user = await prisma.user.findUnique({ where: { username } });
+    const user = await prisma.user.findUnique({ 
+      where: { username },
+      include: { settings: true }
+    });
     if (!user) {
       res.status(401).json({ error: 'Invalid credentials' });
       return;
@@ -82,7 +86,7 @@ router.post('/login', async (req: Request, res: Response) => {
     const token = generateToken(user);
     setTokenCookie(res, token);
 
-    res.json({ id: user.id, username: user.username, role: user.role });
+    res.json({ id: user.id, username: user.username, role: user.role, settings: user.settings });
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({ error: 'Internal server error' });
@@ -108,6 +112,63 @@ router.get('/me', authenticate, async (req: Request, res: Response) => {
     res.json(userWithoutPassword);
   } catch (error) {
     console.error('Me endpoint error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+router.patch('/settings', authenticate, async (req: Request, res: Response) => {
+  try {
+    const { theme, pollingInterval, autoRefreshAnalytics, autoRefreshAlerts, liveData } = req.body;
+    
+    const settings = await prisma.userSettings.update({
+      where: { userId: req.user.id },
+      data: {
+        ...(theme !== undefined && { theme }),
+        ...(pollingInterval !== undefined && { pollingInterval }),
+        ...(autoRefreshAnalytics !== undefined && { autoRefreshAnalytics }),
+        ...(autoRefreshAlerts !== undefined && { autoRefreshAlerts }),
+        ...(liveData !== undefined && { liveData })
+      }
+    });
+    
+    res.json({ message: 'Settings updated successfully', settings });
+  } catch (error) {
+    console.error('Update settings error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+router.patch('/password', authenticate, async (req: Request, res: Response) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      res.status(400).json({ error: 'Current and new passwords are required' });
+      return;
+    }
+
+    const user = await prisma.user.findUnique({ where: { id: req.user.id } });
+    if (!user) {
+      res.status(404).json({ error: 'User not found' });
+      return;
+    }
+
+    const isValid = await comparePassword(currentPassword, user.password);
+    if (!isValid) {
+      res.status(401).json({ error: 'Incorrect current password' });
+      return;
+    }
+
+    const hashedPassword = await hashPassword(newPassword);
+    
+    await prisma.user.update({
+      where: { id: req.user.id },
+      data: { password: hashedPassword }
+    });
+
+    res.json({ message: 'Password updated successfully' });
+  } catch (error) {
+    console.error('Update password error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
