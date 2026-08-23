@@ -1,38 +1,97 @@
+import { ShieldCheck, Activity, Map, Zap } from 'lucide-react';
+import { FadeIn } from '../components/ui/FadeIn';
+
 export function About() {
+  const capabilities = [
+    {
+      icon: <Activity className="w-6 h-6 text-brand-core" />,
+      title: "Live Telemetry",
+      description: "Engine health, speed, fuel, and GPS — streamed to your screen as it happens."
+    },
+    {
+      icon: <ShieldCheck className="w-6 h-6 text-brand-flame" />,
+      title: "Early Warnings",
+      description: "Alerts fire when something drifts out of range, before it becomes a breakdown."
+    },
+    {
+      icon: <Map className="w-6 h-6 text-brand-ember" />,
+      title: "Fleet Map",
+      description: "Every vehicle on one map. See where they are, where they've been, and if they're on schedule."
+    },
+    {
+      icon: <Zap className="w-6 h-6 text-brand-void" />,
+      title: "Trends & History",
+      description: "Charts that show what's improving, what's degrading, and where to focus next."
+    }
+  ];
+
   return (
-    <div className="flex flex-col items-center w-full">
-      <section className="flex flex-col items-center w-full max-w-4xl text-center mb-10 mt-8">
-        <img src="/logo.png" alt="StokedFleet Logo" className="w-40 h-40 mb-4 drop-shadow-md animate-bounce" style={{ animationDuration: '3s' }} />
+    <div className="w-full flex flex-col items-center pb-24 overflow-hidden">
+      {/* Hero */}
+      <section className="relative w-full max-w-5xl mx-auto px-6 pt-24 pb-20 flex flex-col items-center text-center">
+        <FadeIn direction="down" duration={0.8}>
+          <img src="/logo.png" alt="StokedFleet Logo" className="w-28 h-28 mb-8 drop-shadow-xl mx-auto" />
+        </FadeIn>
         
-        <h1 className="text-7xl md:text-9xl font-heading tracking-wider mb-2 mt-4 leading-none drop-shadow-sm">
-          <span className="text-brand-flame">STOKED</span><span className="text-brand-core">FLEET</span>
-        </h1>
-        <h2 className="text-2xl md:text-3xl font-heading text-brand-void mb-8 uppercase tracking-[0.2em] opacity-90">
-          Real-Time Fleet Telemetry
-        </h2>
-        <p className="text-lg text-muted-foreground mb-6">
-          Experience the power of real-time data streaming with our WebSocket-based solution. Stay updated with live data and insights.
-        </p>
+        <FadeIn direction="up" duration={0.8} delay={0.2}>
+          <h1 className="text-6xl md:text-8xl font-heading tracking-widest mb-4 leading-none uppercase">
+            <span className="text-brand-flame">Stoked</span><span className="text-brand-core">Fleet</span>
+          </h1>
+          <h2 className="text-xl md:text-2xl font-heading text-brand-void uppercase tracking-[0.2em] opacity-90">
+            Real-Time Fleet Telemetry
+          </h2>
+        </FadeIn>
+
+        <FadeIn direction="up" duration={0.8} delay={0.4}>
+          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl leading-relaxed font-body mt-8">
+            Know what every vehicle in your fleet is doing right now — not what it was doing an hour ago. StokedFleet streams live engine data to your browser so you can spot problems early and keep things moving.
+          </p>
+        </FadeIn>
       </section>
 
-      <div className="w-full max-w-4xl h-px bg-border my-8 transition-colors duration-300"></div>
-
-      <section className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl">
-        <div className="group bg-card p-8 rounded-2xl shadow-sm border border-border hover:shadow-lg hover:border-brand-void/50 transition-all duration-300">
-          <h2 className="text-xl font-bold text-card-foreground mb-3 group-hover:text-brand-void transition-colors">Periodic Polling</h2>
-          <p className="text-muted-foreground leading-relaxed">
-            Structured aggregated/derived content such as averages/totals for a time window.
-          </p>
-        </div>
-        <div className="group bg-card p-8 rounded-2xl shadow-sm border border-border hover:shadow-lg hover:border-brand-core/50 transition-all duration-300">
-          <h2 className="text-xl font-bold text-card-foreground mb-3 group-hover:text-brand-core transition-colors">Live Dummy Data Generator</h2>
-          <p className="text-muted-foreground leading-relaxed">
-            Realtime updates via WebSocket.
-          </p>
+      {/* Mission Strip */}
+      <section className="w-full bg-brand-void text-white py-16 px-6">
+        <div className="max-w-4xl mx-auto text-center">
+          <FadeIn direction="none" duration={1}>
+            <h3 className="text-3xl md:text-4xl font-heading mb-4 tracking-wide">Energy + Data</h3>
+            <p className="text-white/70 font-body text-lg leading-relaxed max-w-2xl mx-auto">
+              We built StokedFleet because fleet managers shouldn't need a data science degree to understand their vehicles. Plug in, see what matters, act on it.
+            </p>
+          </FadeIn>
         </div>
       </section>
 
-      <div className="w-full max-w-4xl h-px bg-border my-8 transition-colors duration-300"></div>
+      {/* Capabilities */}
+      <section className="w-full max-w-5xl mx-auto px-6 py-24">
+        <FadeIn direction="up">
+          <div className="text-center mb-14">
+            <h2 className="text-3xl md:text-4xl font-heading text-brand-void uppercase tracking-widest mb-3">
+              What It Does
+            </h2>
+            <p className="text-base text-muted-foreground font-body max-w-xl mx-auto">
+              Four things, done well.
+            </p>
+          </div>
+        </FadeIn>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {capabilities.map((cap, index) => (
+            <FadeIn key={index} direction="up" delay={index * 0.1}>
+              <div className="h-full group bg-card p-8 rounded-2xl border border-border hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
+                <div className="bg-muted w-12 h-12 rounded-xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-300">
+                  {cap.icon}
+                </div>
+                <h3 className="text-lg font-bold text-foreground mb-2 font-heading uppercase tracking-wide">
+                  {cap.title}
+                </h3>
+                <p className="text-muted-foreground leading-relaxed font-body text-sm">
+                  {cap.description}
+                </p>
+              </div>
+            </FadeIn>
+          ))}
+        </div>
+      </section>
     </div>
-  )
+  );
 }

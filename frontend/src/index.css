@@ -50,23 +50,23 @@
   }
 
   .dark {
-    /* Dark Mode */
-    --background: #030712;
+    /* Dark Mode — true black to match brand concept */
+    --background: #000000;
     --foreground: #f9fafb;
     
-    --card: #111827;
+    --card: #0a0a0a;
     --card-foreground: #f9fafb;
     
-    --border: #1f2937;
-    --border-hover: #374151;
+    --border: #1a1a1a;
+    --border-hover: #2a2a2a;
     
-    --muted: #1f2937;
+    --muted: #141414;
     --muted-foreground: #9ca3af;
     
-    /* Brand (Slightly adjusted for dark mode contrast if needed, otherwise kept identical) */
-    --brand-flame: #ff4d4f; /* slightly brighter red for dark mode */
+    /* Brand (brighter variants for contrast on true black) */
+    --brand-flame: #ff4d4f;
     --brand-ember: #f99d1c;
-    --brand-void: #a855f7; /* lighter purple for visibility */
+    --brand-void: #a855f7;
     --brand-core: #87ceeb;
   }
 

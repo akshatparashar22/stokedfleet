@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { Sun, Moon } from 'lucide-react'
 import { useAuthStore } from '../store/authStore'
+import { SplitAuthLayout } from '../components/ui/SplitAuthLayout'
 
 export function Signup() {
   const [username, setUsername] = useState('')
@@ -45,7 +46,7 @@ export function Signup() {
   }
 
   return (
-    <div className="flex min-h-screen w-full items-center justify-center bg-background relative">
+    <SplitAuthLayout>
       <div className="absolute top-6 right-6 z-50">
         <button
           onClick={toggleTheme}
@@ -58,8 +59,7 @@ export function Signup() {
       </div>
 
       <div className="flex flex-col items-center justify-center w-full max-w-md p-6">
-        <img src="/logo.png" alt="StokedFleet Logo" className="w-24 h-24 mb-6 drop-shadow-md" />
-        <h1 className="text-5xl font-heading text-brand-void mb-8 tracking-widest">REGISTER</h1>
+        <h1 className="text-4xl font-heading text-brand-void mb-8 tracking-widest uppercase">Register</h1>
       
       <form onSubmit={handleSignup} className="w-full bg-card p-8 rounded-2xl shadow-sm border border-border flex flex-col gap-5">
         {error && <p className="text-brand-flame font-bold text-sm bg-brand-flame/10 p-3 rounded-lg border border-brand-flame/30">{error}</p>}
@@ -115,6 +115,6 @@ export function Signup() {
         </p>
       </form>
       </div>
-    </div>
+    </SplitAuthLayout>
   )
 }
