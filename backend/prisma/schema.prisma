@@ -68,6 +68,7 @@ model Vehicle {
 
   telemetry Telemetry[]
   users     User[]      @relation("UserVehicles")
+  alerts    Alert[]
 }
 
 model Telemetry {
@@ -86,4 +87,18 @@ model Telemetry {
 
   @@index([timestamp])
   @@index([vehicleId, timestamp])
+}
+
+model Alert {
+  id           String   @id @default(uuid())
+  vehicleId    String
+  vehicle      Vehicle  @relation(fields: [vehicleId], references: [id])
+  type         String
+  message      String
+  severity     String   @default("CRITICAL")
+  acknowledged Boolean  @default(false)
+  createdAt    DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([vehicleId])
 }

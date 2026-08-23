@@ -1,10 +1,22 @@
 import { NavLink, useNavigate } from 'react-router-dom'
+import { useEffect } from 'react'
 import { Activity, BarChart2, Bell, Settings as SettingsIcon, LogOut, Sun, Moon, Info } from 'lucide-react'
 import { useAuthStore } from '../store/authStore'
+import PollerService from '../services/pollerService'
+import { useAlertStore } from '../store/alertStore'
 
 export function Sidebar() {
   const navigate = useNavigate()
   const { user, logout, updateSettings } = useAuthStore()
+  const { unreadCount, fetchAlerts } = useAlertStore()
+
+  useEffect(() => {
+    fetchAlerts();
+    if (user?.settings?.autoRefreshAlerts) {
+      const unsubscribe = PollerService.getInstance().subscribe(fetchAlerts);
+      return () => unsubscribe();
+    }
+  }, [user?.settings?.autoRefreshAlerts, fetchAlerts]);
 
   const toggleTheme = async () => {
     const isDark = document.documentElement.classList.toggle('dark')
@@ -12,7 +24,6 @@ export function Sidebar() {
     localStorage.setItem('theme', newTheme);
     
     if (user) {
-      // Intentionally don't wait for this to finish to keep UI snappy
       updateSettings({ theme: isDark ? 'DARK' : 'LIGHT' }).catch(console.error);
     }
   }
@@ -25,7 +36,7 @@ export function Sidebar() {
   const navItems = [
     { name: 'Dashboard', path: '/dashboard', icon: Activity },
     { name: 'Analytics', path: '/analytics', icon: BarChart2 },
-    { name: 'Alerts', path: '/alerts', icon: Bell },
+    { name: 'Alerts', path: '/alerts', icon: Bell, badge: unreadCount > 0 ? unreadCount : undefined },
     { name: 'Settings', path: '/settings', icon: SettingsIcon },
     { name: 'About', path: '/about', icon: Info },
   ]
@@ -48,15 +59,22 @@ export function Sidebar() {
               key={item.name}
               to={item.path}
               className={({ isActive }) => 
-                `flex items-center gap-3 p-3 rounded-xl transition-all font-bold text-sm ${
+                `flex items-center justify-between p-3 rounded-xl transition-all font-bold text-sm ${
                   isActive 
                     ? 'bg-brand-core/10 text-brand-core border border-brand-core/20' 
                     : 'text-muted-foreground hover:bg-muted hover:text-foreground border border-transparent'
                 }`
               }
             >
-              <item.icon className="w-5 h-5" />
-              {item.name}
+              <div className="flex items-center gap-3">
+                <item.icon className="w-5 h-5" />
+                {item.name}
+              </div>
+              {item.badge !== undefined && (
+                <span className="bg-brand-flame text-white text-xs font-bold px-2 py-0.5 rounded-full flex items-center justify-center min-w-[20px]">
+                  {item.badge > 99 ? '99+' : item.badge}
+                </span>
+              )}
             </NavLink>
           ))}
         </nav>

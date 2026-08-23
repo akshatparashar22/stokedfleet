@@ -196,6 +196,17 @@ export class LiveFeedPublisher {
             lng: payload.lng,
           }
         }).catch((err: any) => console.error('[DB Error] Failed to insert telemetry:', err));
+
+        if (payload.eventType === 'ALERT') {
+          prisma.alert.create({
+            data: {
+              vehicleId: payload.vehicleId,
+              type: payload.health === 'CRITICAL' ? 'CRITICAL_HEALTH' : 'HEALTH_WARNING',
+              message: `Vehicle ${payload.vehicleId} entered ${payload.health} state (Temp: ${payload.engineTemp}°C)`,
+              severity: payload.health === 'CRITICAL' ? 'CRITICAL' : 'WARN',
+            }
+          }).catch((err: any) => console.error('[DB Error] Failed to insert alert:', err));
+        }
       }
       
       this.publish(batchUpdates);

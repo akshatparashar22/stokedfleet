@@ -7,14 +7,11 @@ const prisma = new PrismaClient();
 // GET /api/v1/alerts — list active alerts
 router.get('/', async (req, res, next) => {
   try {
-    const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+    const isHistory = req.query.tab === 'history';
     
-    const alerts = await prisma.telemetry.findMany({
-      where: { 
-        eventType: 'ALERT',
-        timestamp: { gte: fiveMinutesAgo }
-      },
-      orderBy: { timestamp: 'desc' },
+    const alerts = await prisma.alert.findMany({
+      where: { acknowledged: isHistory },
+      orderBy: { createdAt: 'desc' },
       take: 50
     });
 
@@ -25,8 +22,16 @@ router.get('/', async (req, res, next) => {
 });
 
 // PATCH /api/v1/alerts/:id/acknowledge — acknowledge an alert
-router.patch('/:id/acknowledge', (req, res) => {
-  res.json({ status: 'ok', message: `Alert ${req.params.id} acknowledged` });
+router.patch('/:id/acknowledge', async (req, res, next) => {
+  try {
+    const alert = await prisma.alert.update({
+      where: { id: req.params.id },
+      data: { acknowledged: true }
+    });
+    res.json({ status: 'ok', message: `Alert acknowledged`, data: alert });
+  } catch (error) {
+    next(error);
+  }
 });
 
 export default router;
