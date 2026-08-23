@@ -1,5 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { AlertTriangle, CheckCircle, MapPin, Activity, Thermometer, Battery } from 'lucide-react';
+import PollerService from '../services/pollerService';
+import { useAuthStore } from '../store/authStore';
 
 interface Alert {
   id: string;
@@ -14,6 +16,7 @@ interface Alert {
 }
 
 export function Alerts() {
+  const { user } = useAuthStore();
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -61,9 +64,11 @@ export function Alerts() {
 
   useEffect(() => {
     fetchAlerts();
-    const interval = setInterval(fetchAlerts, 5000);
-    return () => clearInterval(interval);
-  }, []);
+    if (user?.settings?.autoRefreshAlerts) {
+      const unsubscribe = PollerService.getInstance().subscribe(fetchAlerts);
+      return () => unsubscribe();
+    }
+  }, [user?.settings?.autoRefreshAlerts]);
 
   return (
     <div className="p-8 w-full max-w-7xl mx-auto space-y-8">

@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Activity, AlertTriangle, Thermometer, Battery } from 'lucide-react';
+import PollerService from '../services/pollerService';
+import { useAuthStore } from '../store/authStore';
 
 interface TelemetrySummary {
   vehicleId: string;
@@ -8,6 +10,7 @@ interface TelemetrySummary {
 }
 
 export function Analytics() {
+  const { user } = useAuthStore();
   const [summaries, setSummaries] = useState<TelemetrySummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -31,10 +34,15 @@ export function Analytics() {
   };
 
   useEffect(() => {
+    // Initial fetch
     fetchData();
-    const interval = setInterval(fetchData, 5000);
-    return () => clearInterval(interval);
-  }, []);
+    
+    // Subscribe to poller only if auto-refresh is enabled
+    if (user?.settings?.autoRefreshAnalytics) {
+      const unsubscribe = PollerService.getInstance().subscribe(fetchData);
+      return () => unsubscribe();
+    }
+  }, [user?.settings?.autoRefreshAnalytics]);
 
   return (
     <div className="p-8 w-full max-w-7xl mx-auto space-y-8">
