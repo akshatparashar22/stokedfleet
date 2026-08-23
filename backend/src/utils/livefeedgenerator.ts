@@ -181,21 +181,27 @@ export class LiveFeedPublisher {
 
         batchUpdates.push(payload);
 
-        // Asynchronously insert into database
-        prisma.telemetry.create({
-          data: {
-            vehicleId: payload.vehicleId,
-            timestamp: new Date(payload.timestamp),
-            speed: payload.speed,
-            fuelLevel: payload.fuelLevel,
-            engineTemp: payload.engineTemp,
-            status: payload.status,
-            health: payload.health,
-            eventType: payload.eventType,
-            lat: payload.lat,
-            lng: payload.lng,
-          }
-        }).catch((err: any) => console.error('[DB Error] Failed to insert telemetry:', err));
+        // Asynchronously upsert vehicle then insert telemetry (prevents FK violation if DB was reset)
+        prisma.vehicle.upsert({
+          where: { id: payload.vehicleId },
+          update: { status: payload.status, health: payload.health },
+          create: { id: payload.vehicleId, status: payload.status, health: payload.health },
+        }).then(() =>
+          prisma.telemetry.create({
+            data: {
+              vehicleId: payload.vehicleId,
+              timestamp: new Date(payload.timestamp),
+              speed: payload.speed,
+              fuelLevel: payload.fuelLevel,
+              engineTemp: payload.engineTemp,
+              status: payload.status,
+              health: payload.health,
+              eventType: payload.eventType,
+              lat: payload.lat,
+              lng: payload.lng,
+            }
+          })
+        ).catch((err: any) => console.error('[DB Error] Failed to insert telemetry:', err));
 
         if (payload.eventType === 'ALERT') {
           prisma.alert.create({
