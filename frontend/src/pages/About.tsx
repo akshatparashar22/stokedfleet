@@ -92,6 +92,35 @@ export function About() {
           ))}
         </div>
       </section>
+      {/* Open Source & Support */}
+      <section className="w-full bg-muted/30 py-16 px-6 mt-12 border-t border-border">
+        <div className="max-w-4xl mx-auto text-center flex flex-col items-center">
+          <FadeIn direction="up">
+            <h3 className="text-2xl font-heading mb-4 tracking-wide text-foreground">Open Source</h3>
+            <p className="text-muted-foreground font-body text-base leading-relaxed max-w-xl mx-auto mb-8">
+              StokedFleet is built as an open-source project. If you find it useful, consider checking out the source code or supporting the development.
+            </p>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <a 
+                href="https://github.com/akshatparashar22" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="px-6 py-3 bg-card border border-border rounded-lg text-foreground font-medium hover:bg-muted transition-colors flex items-center gap-2"
+              >
+                GitHub Profile
+              </a>
+              <a 
+                href="http://github.com/sponsors/akshatparashar22" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="px-6 py-3 bg-brand-flame text-white rounded-lg font-medium hover:bg-brand-flame/90 transition-colors flex items-center gap-2 shadow-lg shadow-brand-flame/20"
+              >
+                Become a Sponsor
+              </a>
+            </div>
+          </FadeIn>
+        </div>
+      </section>
     </div>
   );
 }

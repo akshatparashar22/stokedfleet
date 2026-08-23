@@ -119,12 +119,18 @@ export function SplitAuthLayout({ children }: SplitAuthLayoutProps) {
         </div>
 
         <motion.div 
-          className="relative z-10 text-muted-foreground/50 text-sm font-body"
+          className="relative z-10 text-muted-foreground/50 text-sm font-body flex items-center gap-3 mt-8"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.4, ease: "easeOut" }}
         >
-          &copy; {new Date().getFullYear()} StokedFleet
+          <span>&copy; {new Date().getFullYear()} StokedFleet</span>
+          <span>&bull;</span>
+          <a href="https://github.com/akshatparashar22" target="_blank" rel="noopener noreferrer" className="hover:text-brand-core transition-colors">GitHub</a>
+          <span>&bull;</span>
+          <a href="http://github.com/sponsors/akshatparashar22" target="_blank" rel="noopener noreferrer" className="hover:text-brand-flame transition-colors flex items-center gap-1">
+            Sponsor
+          </a>
         </motion.div>
       </div>
 
