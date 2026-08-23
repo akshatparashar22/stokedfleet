@@ -118,17 +118,25 @@ router.get('/me', authenticate, async (req: Request, res: Response) => {
 
 router.patch('/settings', authenticate, async (req: Request, res: Response) => {
   try {
-    const { theme, pollingInterval, autoRefreshAnalytics, autoRefreshAlerts, liveData } = req.body;
+    const { theme, pollingInterval, autoRefreshAnalytics, autoRefreshAlerts, liveData, widgets } = req.body;
     
+    let updateData: any = {
+      ...(theme !== undefined && { theme }),
+      ...(pollingInterval !== undefined && { pollingInterval }),
+      ...(autoRefreshAnalytics !== undefined && { autoRefreshAnalytics }),
+      ...(autoRefreshAlerts !== undefined && { autoRefreshAlerts }),
+      ...(liveData !== undefined && { liveData })
+    };
+
+    if (widgets !== undefined) {
+      const existingSettings = await prisma.userSettings.findUnique({ where: { userId: req.user.id } });
+      const currentWidgets = typeof existingSettings?.widgets === 'object' && existingSettings?.widgets !== null ? existingSettings.widgets : {};
+      updateData.widgets = { ...(currentWidgets as object), ...widgets };
+    }
+
     const settings = await prisma.userSettings.update({
       where: { userId: req.user.id },
-      data: {
-        ...(theme !== undefined && { theme }),
-        ...(pollingInterval !== undefined && { pollingInterval }),
-        ...(autoRefreshAnalytics !== undefined && { autoRefreshAnalytics }),
-        ...(autoRefreshAlerts !== undefined && { autoRefreshAlerts }),
-        ...(liveData !== undefined && { liveData })
-      }
+      data: updateData
     });
     
     res.json({ message: 'Settings updated successfully', settings });

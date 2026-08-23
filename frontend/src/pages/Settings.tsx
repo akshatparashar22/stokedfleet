@@ -11,6 +11,7 @@ export function Settings() {
   const [autoRefreshAlerts, setAutoRefreshAlerts] = useState(user?.settings?.autoRefreshAlerts ?? true);
   const [liveData, setLiveData] = useState(user?.settings?.liveData ?? true);
   const [theme, setTheme] = useState(user?.settings?.theme || 'SYSTEM');
+  const [showMap, setShowMap] = useState(user?.settings?.widgets?.dashboard?.showMap ?? true);
   
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ text: string, type: 'success' | 'error' } | null>(null);
@@ -65,6 +66,7 @@ export function Settings() {
         autoRefreshAlerts,
         liveData,
         theme,
+        widgets: { dashboard: { showMap } }
       });
 
       // Apply the theme immediately
@@ -190,6 +192,34 @@ export function Settings() {
                   </div>
                 </label>
               </div>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <h3 className="text-lg font-bold text-foreground border-b border-border pb-2 flex items-center gap-2">
+              <Activity className="w-5 h-5 text-brand-core" />
+              Dashboard Widgets
+            </h3>
+            
+            <div className="space-y-4">
+              <label className="flex items-center gap-3 cursor-pointer">
+                <div className="relative">
+                  <input 
+                    type="checkbox" 
+                    className="sr-only" 
+                    checked={showMap}
+                    onChange={(e) => setShowMap(e.target.checked)}
+                  />
+                  <div className={`block w-10 h-6 rounded-full transition-colors ${showMap ? 'bg-brand-core' : 'bg-muted'}`}></div>
+                  <div className={`dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform ${showMap ? 'transform translate-x-4' : ''}`}></div>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-sm font-semibold text-foreground flex items-center gap-1">
+                    Show Live Map
+                  </span>
+                  <span className="text-xs text-muted-foreground">Display the live telemetry map on the dashboard.</span>
+                </div>
+              </label>
             </div>
           </div>
 

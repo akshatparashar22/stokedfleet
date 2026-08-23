@@ -8,6 +8,7 @@ export interface UserSettings {
   autoRefreshAnalytics: boolean;
   autoRefreshAlerts: boolean;
   liveData: boolean;
+  widgets?: any;
 }
 
 export interface User {

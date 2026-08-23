@@ -51,6 +51,7 @@ export function Dashboard() {
   const [pinnedVehicleId, setPinnedVehicleId] = useState<string | null>(null)
   
   const isLiveDataOn = user?.settings?.liveData ?? true;
+  const showMap = user?.settings?.widgets?.dashboard?.showMap ?? true;
   const { lastMessage } = useWebSocket()
 
   useEffect(() => {
@@ -108,39 +109,41 @@ export function Dashboard() {
       ) : (
         <div className="flex flex-col gap-8">
           
-          {/* Full-width Map Widget */}
-          <div className="flex flex-col gap-2">
-            <div className="w-full h-[40vh] bg-card rounded-2xl border border-border shadow-sm overflow-hidden relative z-0">
-              <MapContainer center={MAP_CENTER} zoom={12} style={{ height: '100%', width: '100%' }}>
-                <TileLayer 
-                  url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
-                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-                />
-                {vehicles.map(v => (
-                  <Marker 
-                    key={v.vehicleId} 
-                    position={[v.lat, v.lng]} 
-                    icon={createCustomIcon(v.status, v.vehicleId === pinnedVehicleId)}
-                    eventHandlers={{ click: () => setPinnedVehicleId(v.vehicleId) }}
-                  >
-                    <Popup className="font-body text-sm font-bold">
-                      <div className="flex flex-col gap-1">
-                        <span className="text-brand-void text-lg">{v.vehicleId}</span>
-                        <span className="text-muted-foreground">Status: <span className="text-brand-core">{v.status}</span></span>
-                        <span className="text-muted-foreground">Speed: {v.speed.toFixed(0)} km/h</span>
-                      </div>
-                    </Popup>
-                  </Marker>
-                ))}
-              </MapContainer>
+          {/* Conditionally rendered Map Widget */}
+          {showMap && (
+            <div className="flex flex-col gap-2">
+              <div className="w-full h-[40vh] bg-card rounded-2xl border border-border shadow-sm overflow-hidden relative z-0">
+                <MapContainer center={MAP_CENTER} zoom={12} style={{ height: '100%', width: '100%' }}>
+                  <TileLayer 
+                    url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+                  />
+                  {vehicles.map(v => (
+                    <Marker 
+                      key={v.vehicleId} 
+                      position={[v.lat, v.lng]} 
+                      icon={createCustomIcon(v.status, v.vehicleId === pinnedVehicleId)}
+                      eventHandlers={{ click: () => setPinnedVehicleId(v.vehicleId) }}
+                    >
+                      <Popup className="font-body text-sm font-bold">
+                        <div className="flex flex-col gap-1">
+                          <span className="text-brand-void text-lg">{v.vehicleId}</span>
+                          <span className="text-muted-foreground">Status: <span className="text-brand-core">{v.status}</span></span>
+                          <span className="text-muted-foreground">Speed: {v.speed.toFixed(0)} km/h</span>
+                        </div>
+                      </Popup>
+                    </Marker>
+                  ))}
+                </MapContainer>
+              </div>
+              <p className="text-xs text-muted-foreground px-2">
+                <a href="https://leafletjs.com/" target="_blank" rel="noopener noreferrer" className="hover:text-foreground underline transition-colors">Leaflet</a>, the open-source map library used above, asks for contributions for the welfare of the people of Ukraine hurt during the war. <a href="https://u24.gov.ua/" target="_blank" rel="noopener noreferrer" className="hover:text-foreground underline transition-colors">Please consider supporting their cause here.</a>
+                <span className="block mt-1.5 italic opacity-75 text-[11px]">
+                  — Regards, dev with no affiliation to any organization or agenda.
+                </span>
+              </p>
             </div>
-            <p className="text-xs text-muted-foreground px-2">
-              <a href="https://leafletjs.com/" target="_blank" rel="noopener noreferrer" className="hover:text-foreground underline transition-colors">Leaflet</a>, the open-source map library used above, asks for contributions for the welfare of the people of Ukraine hurt during the war. <a href="https://u24.gov.ua/" target="_blank" rel="noopener noreferrer" className="hover:text-foreground underline transition-colors">Please consider supporting their cause here.</a>
-              <span className="block mt-1.5 italic opacity-75 text-[11px]">
-                — Regards, dev with no affiliation to any organization or agenda.
-              </span>
-            </p>
-          </div>
+          )}
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
           

@@ -52,6 +52,9 @@ model UserSettings {
   autoRefreshAnalytics Boolean @default(true)
   autoRefreshAlerts    Boolean @default(true)
 
+  // Scalable widget configurations (stores enabled/disabled state of widgets per page)
+  widgets Json? @default("{\"dashboard\": {\"showMap\": true}}")
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
