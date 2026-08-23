@@ -22,7 +22,9 @@ class WebSocketService {
         if (this.socket) return;
         this.intentionalDisconnect = false;
         
-        this.socket = new WebSocket("ws://localhost:3000");
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const wsUrl = import.meta.env.VITE_WS_URL || `${protocol}//${window.location.host}/ws`;
+        this.socket = new WebSocket(wsUrl);
 
         this.socket.onopen = () => {
             console.log("Connected");

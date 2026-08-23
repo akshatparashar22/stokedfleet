@@ -1,72 +1,36 @@
 # Fleet Telemetry Dashboard
 
-This is the monorepo for the Fleet / Vehicle Telemetry Dashboard, built as part of the Full-Stack Recruitment Task.
+A real-time fleet and vehicle telemetry dashboard built to monitor, analyze, and alert on vehicle health and operational status.
 
-## Project Structure
+The application ingests live telemetry streams, provides aggregated historical data polling, and offers a fully responsive, themed interface for fleet managers and drivers to oversee their vehicles.
 
-- `frontend/`: React + TypeScript application powered by Vite.
-- `backend/`: Node.js + Express backend server.
-- `shared/`: Shared TypeScript types used by both frontend and backend.
+## Overview
 
-## Prerequisites
+This repository contains a full-stack monorepo structured into three main packages:
 
-- **Node.js** (v18+)
-- **PostgreSQL** (v15+) — installed locally with `psql` available on PATH
+- `frontend/`: A React Single-Page Application (SPA) built with TypeScript, Vite, Tailwind CSS, and Zustand. It handles live WebSocket data and periodic polling to render real-time charts, metrics, and alerts.
+- `backend/`: A Node.js and Express API built with TypeScript. It manages authentication, serves historical metrics, and pushes live vehicle telemetry to connected clients via WebSockets.
+- `shared/`: Shared TypeScript types across both the frontend and backend to enforce end-to-end type safety.
+
+## Features
+
+- **Live Telemetry Stream**: Real-time vehicle tracking, speed, fuel, and engine temperature updates via WebSockets.
+- **Aggregated Analytics**: Historical trends and summary metrics fetched periodically from the REST API.
+- **Alerting System**: Automated threshold-based alerts (e.g., critical engine temperatures, low fuel) generated and synced to the dashboard.
+- **Multi-tenant Auth**: Secure session management supporting different roles (Driver, Fleet Manager).
+- **Theming & Preferences**: Full dark/light mode support and configurable dashboard widgets saved to user preferences.
+- **Interactive UI**: Rich charts, filtering, and micro-animations driven by Framer Motion and Recharts.
 
 ## Getting Started
 
-### 1. Database Setup
+To get the project running locally, refer to the [Setup Guide](docs/setup.md) which includes instructions for both Docker (recommended) and manual local setups.
 
-Run the setup script to create the PostgreSQL user and database:
+## Tech Stack
 
-**Windows (PowerShell):**
+**Frontend:** React 19, TypeScript, Vite, Tailwind CSS, Zustand, Framer Motion, Recharts, React Leaflet  
+**Backend:** Node.js, Express, TypeScript, Prisma ORM, WebSocket (`ws`), JWT  
+**Database:** PostgreSQL 15+
 
-```powershell
-cd backend
-.\scripts\setup-db.ps1
-```
+## License
 
-**Linux / macOS:**
-
-```bash
-cd backend
-chmod +x scripts/setup-db.sh
-./scripts/setup-db.sh
-```
-
-> The scripts accept optional parameters to override defaults. Run with `--help` or check the script header for details.
-
-### 2. Configure Environment
-
-Create (or update) `backend/.env` with the following:
-
-```env
-PORT=3000
-CORS_ORIGIN=http://localhost:5173
-DATABASE_URL="postgresql://stokedfleet_user:stokedfleet_pass@localhost:5432/stokedfleet?schema=public"
-```
-
-> Adjust the `DATABASE_URL` if you used custom values during database setup.
-
-### 3. Backend
-
-```bash
-cd backend
-npm install
-npx prisma migrate dev    # create and apply migrations
-npm run dev
-```
-
-The backend will run on `http://localhost:3000`
-
-### 4. Frontend
-
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-The frontend will run on `http://localhost:5173`
-
-Once both are running, you can test the backend connection by clicking the "Test Backend Connection" button on the frontend's main page.
+This project is licensed under the MIT License.

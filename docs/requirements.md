@@ -14,8 +14,8 @@
 ~~- React~~
 ~~- CSS (or a CSS preprocessor)~~
 ~~- UI Design Framework (e.g., Tailwind CSS, Material UI, Ant Design, Chakra UI, etc.)~~
-- Animation Framework (e.g., Framer Motion, React Spring, GSAP, etc.)
-- State Management: Redux or Zustand
+~~- Animation Framework (e.g., Framer Motion, React Spring, GSAP, etc.)~~
+~~- State Management: Redux or Zustand~~
 
 ~~You may use additional libraries as needed, as long as all requirements below are met.~~
 
@@ -27,12 +27,12 @@
 
 ~~- Smart warehouse sensor monitoring~~
 ~~- Fleet/vehicle telemetry dashboard~~
-- IoT environment control system
-- Stock/crypto market simulator dashboard
-- Campus event tracker / traffic monitoring simulator
-- Fitness metrics & habit tracker
-- E-commerce / sales & conversion analytics simulator
-- Any other real dashboard-like domain
+~~- IoT environment control system~~
+~~- Stock/crypto market simulator dashboard~~
+~~- Campus event tracker / traffic monitoring simulator~~
+~~- Fitness metrics & habit tracker~~
+~~- E-commerce / sales & conversion analytics simulator~~
+~~- Any other real dashboard-like domain~~
 
 ## Application Requirements
 
@@ -108,22 +108,22 @@
 ~~- Metric naming, entities, and meaning must remain consistent.~~
 ~~- Both live stream content and periodic API content must align with the domain narrative.~~
 
-### 7) Multi-Modality Interactivity in UI
+### ~~7) Multi-Modality Interactivity in UI~~
 
-Your UI must include multi-modality interactivity (at least two different interaction types).
+~~Your UI must include multi-modality interactivity (at least two different interaction types).~~
 
-Examples (pick at least two; more is better):
+~~Examples (pick at least two; more is better):~~
 
-- Visual: animated charts, micro-animations, hover states, animated progress indicators, expand/collapse cards
-- Form: filtering, search, sorting controls affecting displayed data
-- Real-time: pause/resume live updates, threshold slider affecting alerts
-- Modal/Drawer: click a card/table row to open a details modal
-- Optional: drag-to-reorder dashboard widgets
+~~- Visual: animated charts, micro-animations, hover states, animated progress indicators, expand/collapse cards~~
+~~- Form: filtering, search, sorting controls affecting displayed data~~
+~~- Real-time: pause/resume live updates, threshold slider affecting alerts~~
+~~- Modal/Drawer: click a card/table row to open a details modal~~
+~~- Optional: drag-to-reorder dashboard widgets~~
 
-**Mandatory details:**
+~~**Mandatory details:**~~
 
-- Include at least one user control that changes what is rendered.
-- Include at least one interaction that triggers a visible UI response (modal, drawer, expanded panel, toast, or live mode toggle).
+~~- Include at least one user control that changes what is rendered.~~
+~~- Include at least one interaction that triggers a visible UI response (modal, drawer, expanded panel, toast, or live mode toggle).~~
 
 ## ~~Dummy Live Data + Backend Generation (Explicit Requirement)~~
 
