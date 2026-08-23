@@ -24,7 +24,7 @@ const STATUSES: VehicleStatus[] = ['INTRANSIT', 'OUTOFSERVICE', 'IDLE', 'STANDBY
 
 // a publisher to be subscribed by the websocket server to send live feed data to the clients
 export class LiveFeedPublisher {
-  private subscribers: Set<(data: TelemetryTick) => void> = new Set();
+  private subscribers: Set<(data: TelemetryTick[]) => void> = new Set();
   private vehicles: VehicleState[] = [];
   private intervalId: ReturnType<typeof setInterval> | null = null;
 
@@ -41,16 +41,34 @@ export class LiveFeedPublisher {
     }));
   }
 
-  subscribe(callback: (data: TelemetryTick) => void) {
+  subscribe(callback: (data: TelemetryTick[]) => void) {
     this.subscribers.add(callback);
+    // Immediately send current state of all vehicles to new subscriber
+    const currentStates = this.vehicles.map(v => this.createTick(v));
+    callback(currentStates);
   }
 
-  unsubscribe(callback: (data: TelemetryTick) => void) {
+  unsubscribe(callback: (data: TelemetryTick[]) => void) {
     this.subscribers.delete(callback);
   }
 
-  private publish(data: TelemetryTick) {
+  private publish(data: TelemetryTick[]) {
     this.subscribers.forEach((cb) => cb(data));
+  }
+  
+  private createTick(v: VehicleState): TelemetryTick {
+    return {
+      vehicleId: v.vehicleId,
+      timestamp: new Date().toISOString(),
+      speed: round2(v.speed),
+      fuelLevel: round2(v.fuelLevel),
+      engineTemp: round2(v.engineTemp),
+      status: v.status,
+      health: v.prevHealth,
+      eventType: 'UPDATE', // Default, real events are handled during interval
+      lat: v.lat,
+      lng: v.lng,
+    };
   }
 
   // simulate live feed data generation
@@ -73,22 +91,48 @@ export class LiveFeedPublisher {
       const shuffled = [...this.vehicles].sort(() => Math.random() - 0.5);
       const selected = shuffled.slice(0, count);
 
-      for (const v of selected) {
-        // drift metrics realistically
-        v.speed = clamp(v.speed + (Math.random() - 0.5) * 10, 0, 120);
-        v.fuelLevel = clamp(v.fuelLevel - Math.random() * 0.3, 0, 100);
-        v.engineTemp = clamp(v.engineTemp + (Math.random() - 0.5) * 3, 70, 115);
-        v.lat += (Math.random() - 0.5) * 0.001;
-        v.lng += (Math.random() - 0.5) * 0.001;
+      const batchUpdates: TelemetryTick[] = [];
 
-        // occasionally change movement status
-        if (Math.random() < 0.1) {
-          v.status = STATUSES[Math.floor(Math.random() * STATUSES.length)]!;
+      for (const v of selected) {
+        // Realistic State Machine (Status transitions)
+        const r = Math.random();
+        if (v.status === 'STANDBY') {
+          if (r < 0.1) v.status = 'INTRANSIT';
+        } else if (v.status === 'INTRANSIT') {
+          if (r < 0.05) v.status = 'IDLE';
+          else if (r < 0.1) v.status = 'STANDBY';
+        } else if (v.status === 'IDLE') {
+          if (r < 0.1) v.status = 'INTRANSIT';
+        }
+        // NOTE: OUTOFSERVICE transitions are now strictly handled by health rules below.
+
+        // drift metrics realistically
+        if (v.status === 'INTRANSIT') {
+          v.speed = clamp(v.speed + (Math.random() - 0.5) * 10, 20, 120);
+          v.fuelLevel = clamp(v.fuelLevel - Math.random() * 0.5, 0, 100);
+          
+          // Slight upward bias to engine temperature to simulate eventual overheating
+          // Max delta is +2.4, min is -1.6, ensuring it must pass through WARN (90-100) before CRITICAL (>100)
+          v.engineTemp = clamp(v.engineTemp + (Math.random() - 0.4) * 4, 80, 115);
+          
+          v.lat += (Math.random() - 0.5) * 0.002;
+          v.lng += (Math.random() - 0.5) * 0.002;
+        } else {
+          v.speed = 0;
+          // Cool down when not moving
+          v.engineTemp = clamp(v.engineTemp - 2, 75, 115);
         }
 
         const health = deriveHealth(v.engineTemp);
         const eventType = deriveEventType(v.prevHealth, health);
         v.prevHealth = health;
+
+        // Apply strict health-based status rules
+        if (health === 'CRITICAL' && v.status !== 'OUTOFSERVICE') {
+          v.status = 'OUTOFSERVICE';
+        } else if (health === 'OK' && v.status === 'OUTOFSERVICE') {
+          v.status = 'STANDBY';
+        }
 
         const payload: TelemetryTick = {
           vehicleId: v.vehicleId,
@@ -103,7 +147,7 @@ export class LiveFeedPublisher {
           lng: v.lng,
         };
 
-        this.publish(payload);
+        batchUpdates.push(payload);
 
         // Asynchronously insert into database
         prisma.telemetry.create({
@@ -121,6 +165,8 @@ export class LiveFeedPublisher {
           }
         }).catch((err: any) => console.error('[DB Error] Failed to insert telemetry:', err));
       }
+      
+      this.publish(batchUpdates);
     }, env.LIVE_FEED_INTERVAL_MS);
   }
 

@@ -36,7 +36,7 @@ export function initWebSocket(server: Server): WebSocketServer {
       console.log(`[WS] Client connected (User: ${user.username}). Total: ${wss.clients.size}`);
 
       // subscribe this client to the live feed
-      const onTick = (data: TelemetryTick) => {
+      const onTick = (data: TelemetryTick[]) => {
         if (ws.readyState === WebSocket.OPEN) {
           try {
             ws.send(JSON.stringify(data));
