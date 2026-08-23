@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useWebSocket } from '../hooks/useWebSocket'
-import { Activity, Thermometer, Zap, AlertTriangle, CheckCircle, Navigation } from 'lucide-react'
+import { Activity, Thermometer, Zap, AlertTriangle, CheckCircle, Navigation, Power } from 'lucide-react'
+import { useAuthStore } from '../store/authStore'
 
 interface TelemetryTick {
   vehicleId: string
@@ -16,32 +17,45 @@ interface TelemetryTick {
 }
 
 export function Dashboard() {
+  const { user, updateSettings } = useAuthStore()
   const [telemetry, setTelemetry] = useState<TelemetryTick | null>(null)
+  const isLiveDataOn = user?.settings?.liveData ?? true;
   
   const { lastMessage } = useWebSocket()
 
   useEffect(() => {
-    if (lastMessage) {
+    if (lastMessage && isLiveDataOn) {
       try {
         const parsed = JSON.parse(lastMessage) as TelemetryTick
         setTelemetry(parsed)
       } catch (err) {}
     }
-  }, [lastMessage])
+  }, [lastMessage, isLiveDataOn])
 
   return (
     <div className="p-8 w-full max-w-6xl mx-auto flex flex-col gap-8">
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <h1 className="text-4xl md:text-5xl font-heading text-brand-void tracking-widest">LIVE TELEMETRY</h1>
         <div className="flex items-center gap-3 bg-card px-4 py-2 rounded-full border border-border shadow-sm">
-          <div className={`w-3 h-3 rounded-full ${telemetry ? 'bg-success animate-pulse' : 'bg-brand-ember'}`} />
-          <span className="text-sm font-bold text-muted-foreground">{telemetry ? 'STREAMING ACTIVE' : 'CONNECTING...'}</span>
+          <div className={`w-3 h-3 rounded-full ${telemetry && isLiveDataOn ? 'bg-success animate-pulse' : 'bg-brand-ember'}`} />
+          <span className="text-sm font-bold text-muted-foreground">{isLiveDataOn ? (telemetry ? 'STREAMING ACTIVE' : 'CONNECTING...') : 'STREAMING OFF'}</span>
         </div>
       </div>
 
-      {!telemetry ? (
+      {!isLiveDataOn ? (
+        <div className="w-full h-[50vh] flex flex-col items-center justify-center border-2 border-dashed border-border rounded-2xl bg-card gap-4">
+          <Power className="w-12 h-12 text-muted-foreground mb-2" />
+          <p className="text-muted-foreground font-bold tracking-widest text-lg">LIVE STREAMING TURNED OFF</p>
+          <button 
+            onClick={() => updateSettings({ liveData: true })}
+            className="mt-4 px-6 py-3 bg-brand-core text-white font-bold rounded-xl hover:bg-brand-core/90 transition-colors shadow-sm"
+          >
+            Enable Live Stream
+          </button>
+        </div>
+      ) : !telemetry ? (
         <div className="w-full h-[50vh] flex flex-col items-center justify-center border-2 border-dashed border-border rounded-2xl bg-card">
-          <Activity className="w-10 h-10 text-muted-foreground animate-pulse mb-4" />
+          <Activity className="w-10 h-10 text-brand-core animate-pulse mb-4" />
           <p className="text-muted-foreground font-bold tracking-widest">AWAITING SIGNAL...</p>
         </div>
       ) : (

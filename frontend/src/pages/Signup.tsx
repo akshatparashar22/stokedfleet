@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { Sun, Moon } from 'lucide-react'
-import { useAuth } from '../context/AuthContext'
+import { useAuthStore } from '../store/authStore'
 
 export function Signup() {
   const [username, setUsername] = useState('')
@@ -10,7 +10,7 @@ export function Signup() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
-  const { login } = useAuth()
+  const { login } = useAuthStore()
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault()

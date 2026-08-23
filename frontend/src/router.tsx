@@ -1,7 +1,7 @@
 import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { MainLayout } from './components/MainLayout'
-import { useAuth } from './context/AuthContext'
+import { useAuthStore } from './store/authStore'
 
 // Lazy load the pages
 const Login = lazy(() => import('./pages/Login').then(m => ({ default: m.Login })))
@@ -20,7 +20,7 @@ const PageLoader = () => (
 )
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { user, loading } = useAuth();
+  const { user, loading } = useAuthStore();
   
   if (loading) return <PageLoader />;
   if (!user) return <Navigate to="/login" replace />;

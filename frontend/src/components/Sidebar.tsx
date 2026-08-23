@@ -1,14 +1,20 @@
 import { NavLink, useNavigate } from 'react-router-dom'
 import { Activity, BarChart2, Bell, Settings as SettingsIcon, LogOut, Sun, Moon, Info } from 'lucide-react'
-import { useAuth } from '../context/AuthContext'
+import { useAuthStore } from '../store/authStore'
 
 export function Sidebar() {
   const navigate = useNavigate()
-  const { logout } = useAuth()
+  const { user, logout, updateSettings } = useAuthStore()
 
-  const toggleTheme = () => {
+  const toggleTheme = async () => {
     const isDark = document.documentElement.classList.toggle('dark')
-    localStorage.setItem('theme', isDark ? 'dark' : 'light')
+    const newTheme = isDark ? 'dark' : 'light';
+    localStorage.setItem('theme', newTheme);
+    
+    if (user) {
+      // Intentionally don't wait for this to finish to keep UI snappy
+      updateSettings({ theme: isDark ? 'DARK' : 'LIGHT' }).catch(console.error);
+    }
   }
 
   const handleLogout = async () => {

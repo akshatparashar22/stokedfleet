@@ -1,11 +1,16 @@
+import { useEffect } from 'react'
 import { AppRouter } from './router'
-import { AuthProvider } from './context/AuthContext'
+import { useAuthStore } from './store/authStore'
 
 function App() {
+  const checkAuth = useAuthStore(state => state.checkAuth)
+
+  useEffect(() => {
+    checkAuth()
+  }, [checkAuth])
+
   return (
-    <AuthProvider>
-      <AppRouter />
-    </AuthProvider>
+    <AppRouter />
   )
 }
 
