@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo } from 'react'
 import { useWebSocket } from '../hooks/useWebSocket'
 import { Activity, Thermometer, Zap, AlertTriangle, CheckCircle, Navigation, Power, Truck, ChevronRight } from 'lucide-react'
 import { useAuthStore } from '../store/authStore'
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet'
 import L from 'leaflet'
 
 interface TelemetryTick {
@@ -44,6 +44,17 @@ const createCustomIcon = (status: string, isPinned: boolean) => {
 };
 
 const MAP_CENTER: [number, number] = [28.6139, 77.2090]; // New Delhi
+
+const MapUpdater = () => {
+  const map = useMap();
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      map.invalidateSize();
+    }, 250);
+    return () => clearTimeout(timeout);
+  }, [map]);
+  return null;
+}
 
 export function Dashboard() {
   const { user, updateSettings } = useAuthStore()
@@ -114,6 +125,7 @@ export function Dashboard() {
             <div className="flex flex-col gap-2">
               <div className="w-full h-[40vh] bg-card rounded-2xl border border-border shadow-sm overflow-hidden relative z-0">
                 <MapContainer center={MAP_CENTER} zoom={12} style={{ height: '100%', width: '100%' }}>
+                  <MapUpdater />
                   <TileLayer 
                     url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
