@@ -77,3 +77,10 @@
     @apply transition-colors duration-300;
   }
 }
+
+.leaflet-container .leaflet-title {
+  max-width: none !important;
+  max-height: none !important;
+  width: 256px !important;
+  height: 256px !important;
+}
