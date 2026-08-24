@@ -127,7 +127,7 @@ export function Dashboard() {
                 <MapContainer center={MAP_CENTER} zoom={12} style={{ height: '100%', width: '100%' }}>
                   <MapUpdater />
                   <TileLayer 
-                    url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
                   />
                   {vehicles.map(v => (
