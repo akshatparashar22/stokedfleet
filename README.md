@@ -10,7 +10,6 @@ This repository contains a full-stack monorepo structured into three main packag
 
 - `frontend/`: A React Single-Page Application (SPA) built with TypeScript, Vite, Tailwind CSS, and Zustand. It handles live WebSocket data and periodic polling to render real-time charts, metrics, and alerts.
 - `backend/`: A Node.js and Express API built with TypeScript. It manages authentication, serves historical metrics, and pushes live vehicle telemetry to connected clients via WebSockets.
-- `shared/`: Shared TypeScript types across both the frontend and backend to enforce end-to-end type safety.
 
 ## Features
 
